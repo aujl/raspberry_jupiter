@@ -38,9 +38,4 @@ def run_shell_command(command, cwd=None):
 
 
 if __name__ == "__main__":
-    # Example usage (won't run in this writefile cell, but for context)
-    # success, output = run_shell_command(["ls", "-l"])
-    # print(output)
-    # success, output = run_shell_command("echo 'hello world'")
-    # print(output)
     pass

@@ -120,14 +120,4 @@ def git_push(remote, branch, cwd, token=None):
 
 
 if __name__ == "__main__":
-    # Example usage (won't run in this writefile cell, but for context)
-    # repo_dir = "/tmp/my_temp_repo"
-    # os.makedirs(repo_dir, exist_ok=True)
-    # git_init(repo_dir)
-    # with open(os.path.join(repo_dir, "test.txt"), "w") as f:
-    #     f.write("test content")
-    # git_add(["test.txt"], repo_dir)
-    # git_commit("Add test file", repo_dir)
-    # git_add_remote("origin", "https://github.com/user/repo.git", repo_dir)
-    # git_push("origin", "main", repo_dir, token="YOUR_GITHUB_TOKEN")
     pass

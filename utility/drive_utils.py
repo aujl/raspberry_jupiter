@@ -9,8 +9,7 @@ def change_directory(path):
         path (str): The path to change to.
 
     Returns:
-        tuple: True if the directory change was successful, False otherwise.
-        str: The new working directory or an error message.
+        tuple: A tuple containing a boolean indicating success, and the new working directory or an error message.
     """
     try:
         os.chdir(path)
@@ -25,7 +24,4 @@ def change_directory(path):
 
 
 if __name__ == "__main__":
-    # Example usage (won't run in this writefile cell, but for context)
-    # success, message = change_directory("/gdrive/MyDrive/my_jupyter_repo")
-    # print(message)
     pass

@@ -12,8 +12,7 @@ def create_github_repository(repo_name, description, private=False):
         private (bool): Whether the repository should be private (default: False).
 
     Returns:
-        tuple: True if the repository was created or already exists, False otherwise.
-        str: The URL of the created repository or an error message.
+        tuple: A tuple containing a boolean indicating success, and the URL of the created repository or an error message.
     """
     try:
         github_token = userdata.get("GitHubtoken")
@@ -72,7 +71,4 @@ def create_github_repository(repo_name, description, private=False):
 
 
 if __name__ == "__main__":
-    # Example usage (won't run in this writefile cell, but for context)
-    # success, message = create_github_repository("my-new-repo", "A test repository")
-    # print(message)
     pass
