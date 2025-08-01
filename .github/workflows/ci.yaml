@@ -1,0 +1,41 @@
+
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: 3.11
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-dev.txt
+
+    - name: Run flake8
+      run: |
+        flake8 .
+
+    - name: Run black check
+      run: |
+        black --check .
+
+    - name: Run tests
+      run: |
+        # Assuming tests are in test_*.py files and discoverable by pytest
+        # If using unittest, you might need a different command
+        # For unittest, you could potentially run: python -m unittest discover
+        python -m unittest discover /github/workspace/ -p 'test_*.py'
