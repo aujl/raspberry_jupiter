@@ -44,10 +44,3 @@ def verify_jupyter_connection(local_port):
   print(f"Simulating verifying connection to Jupyter server at http://localhost:{local_port}")
   # In a real scenario, you would attempt to connect to the URL here
   return True # Simulate a successful connection
-
-# Add /content/ to the Python path
-import sys
-sys.path.append('/content/')
-
-# Execute the test file as a Python script
-!python /content/test_jupyter_utils.py
