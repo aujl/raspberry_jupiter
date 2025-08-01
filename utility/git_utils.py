@@ -45,10 +45,13 @@ def git_add(files, cwd):
     return run_git_command(command, cwd=cwd)
 
 
-def git_commit(message, cwd):
+def git_commit(message, cwd, allow_empty=False):
     """Commits changes to the repository."""
     print(f"Committing changes in {cwd}")
-    return run_git_command(["git", "commit", "-m", message], cwd=cwd)
+    command = ["git", "commit", "-m", message]
+    if allow_empty:
+        command.append("--allow-empty")
+    return run_git_command(command, cwd=cwd)
 
 
 def git_add_remote(name, url, cwd):
