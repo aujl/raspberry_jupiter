@@ -1,0 +1,5 @@
+[gdrive]
+type = drive
+scope = drive
+service_account_file = {{SERVICE_ACCOUNT_FILE}}
+root_folder_id = {{ROOT_FOLDER_ID}}
