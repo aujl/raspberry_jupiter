@@ -2,7 +2,7 @@ name: Sync to Google Drive
 
 on:
   push:
-    branches: [ main ]  # adjust if using a different branch
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -13,22 +13,28 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Install rclone
+    - name: Install Python and pip
       run: |
         sudo apt-get update
+        sudo apt-get install -y python3 python3-pip
+
+    - name: Install dependencies
+      run: |
+        pip3 install -r requirements-dev.txt
+
+    - name: Install rclone
+      run: |
         sudo apt-get install -y rclone
 
     - name: Set up rclone config and service account key
       run: |
         mkdir -p ~/.config/rclone
         echo "${{ secrets.GDRIVE_CREDS_JSON }}" > gdrive-creds.json
-        touch ~/.config/rclone/rclone.conf
-        echo '
-[gdrive]
-type = drive
-scope = drive
-service_account_file = ./gdrive-creds.json
-root_folder_id = raspberry_jupiter' >> ~/.config/rclone/rclone.conf
+        sed \
+          -e "s|{{SERVICE_ACCOUNT_FILE}}|$PWD/gdrive-creds.json|g" \
+          -e "s|{{ROOT_FOLDER_ID}}|raspberry_jupiter|g" \
+          rclone.conf.template > ~/.config/rclone/rclone.conf
+
     - name: Sync repository to Google Drive
       run: |
         rclone sync ./ gdrive: \
