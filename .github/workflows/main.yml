@@ -1,0 +1,38 @@
+name: Sync to Google Drive
+
+on:
+  push:
+    branches: [ main ]  # adjust if using a different branch
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Install rclone
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y rclone
+
+    - name: Set up rclone config and service account key
+      run: |
+        mkdir -p ~/.config/rclone
+        echo "${{ secrets.GDRIVE_CREDS_JSON }}" > gdrive-creds.json
+        cat <<EOF > ~/.config/rclone/rclone.conf
+[gdrive]
+type = drive
+scope = drive
+service_account_file = ./gdrive-creds.json
+root_folder_id = YOUR_FOLDER_ID_HERE
+EOF
+
+    - name: Sync repository to Google Drive
+      run: |
+        rclone sync ./ gdrive: \
+          --exclude ".git/**" \
+          --drive-acknowledge-abuse \
+          --quiet
