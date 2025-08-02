@@ -22,14 +22,13 @@ jobs:
       run: |
         mkdir -p ~/.config/rclone
         echo "${{ secrets.GDRIVE_CREDS_JSON }}" > gdrive-creds.json
-        cat <<EOF > ~/.config/rclone/rclone.conf
+        touch ~/.config/rclone/rclone.conf
+        echo '
 [gdrive]
 type = drive
 scope = drive
 service_account_file = ./gdrive-creds.json
-root_folder_id = YOUR_FOLDER_ID_HERE
-EOF
-
+root_folder_id = raspberry_jupiter' >> ~/.config/rclone/rclone.conf
     - name: Sync repository to Google Drive
       run: |
         rclone sync ./ gdrive: \
