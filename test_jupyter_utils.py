@@ -2,6 +2,7 @@
 import unittest
 from unittest.mock import patch, MagicMock
 import sys
+import requests
 
 # Add /content/ to the Python path within the test file itself
 sys.path.append('/content/')
@@ -35,7 +36,7 @@ class TestJupyterUtilsFunctions(unittest.TestCase):
         start_remote_jupyter_server(remote_host, remote_port)
         mock_print.assert_called_with(f"Simulating starting Jupyter server on {remote_host} at port {remote_port}")
 
-    @patch('jupyter_utils.start_remote_jupyter_server', side_effect=Exception("Failed to start server"))
+    @patch('test_jupyter_utils.start_remote_jupyter_server', side_effect=Exception("Failed to start server"))
     @patch('jupyter_utils.print')
     def test_start_remote_jupyter_server_failure(self, mock_print, mock_start):
         remote_host = "remote.example.com"
@@ -66,7 +67,7 @@ class TestJupyterUtilsFunctions(unittest.TestCase):
         create_ssh_tunnel(local_port, remote_port, username, remote_host)
         mock_print.assert_called_with(f"Simulating creating SSH tunnel from local port {local_port} to {remote_host}:{remote_port} with user {username}")
 
-    @patch('jupyter_utils.create_ssh_tunnel', side_effect=OSError("SSH command failed"))
+    @patch('test_jupyter_utils.create_ssh_tunnel', side_effect=OSError("SSH command failed"))
     @patch('jupyter_utils.print')
     def test_create_ssh_tunnel_failure(self, mock_print, mock_tunnel):
         local_port = 8000
@@ -80,50 +81,68 @@ class TestJupyterUtilsFunctions(unittest.TestCase):
         mock_print.assert_not_called() # print should not be called if an exception is raised before it
 
 
-    @patch('jupyter_utils.verify_jupyter_connection', return_value=True)
+    @patch('jupyter_utils.requests.get')
     @patch('jupyter_utils.print')
-    def test_verify_jupyter_connection_success(self, mock_print, mock_verify):
+    def test_verify_jupyter_connection_success(self, mock_print, mock_get):
         local_port = 8000
+        mock_get.return_value = MagicMock(status_code=200)
+
         is_connected = verify_jupyter_connection(local_port)
-        mock_print.assert_called_with(f"Simulating verifying connection to Jupyter server at http://localhost:{local_port}")
+
+        mock_print.assert_called_with(
+            f"Simulating verifying connection to Jupyter server at http://localhost:{local_port}"
+        )
+        mock_get.assert_called_once_with(f"http://localhost:{local_port}")
         self.assertTrue(is_connected)
-        mock_verify.assert_called_once_with(local_port)
 
 
-    @patch('jupyter_utils.verify_jupyter_connection', return_value=False)
+    @patch('jupyter_utils.requests.get')
     @patch('jupyter_utils.print')
-    def test_verify_jupyter_connection_failure(self, mock_print, mock_verify):
+    def test_verify_jupyter_connection_failure(self, mock_print, mock_get):
         local_port = 8000
+        mock_get.side_effect = requests.RequestException("Connection failed")
+
         is_connected = verify_jupyter_connection(local_port)
-        mock_print.assert_called_with(f"Simulating verifying connection to Jupyter server at http://localhost:{local_port}")
-        self.assertFalse(is_connected)
-        mock_verify.assert_called_once_with(local_port)
 
-    @patch('jupyter_utils.verify_jupyter_connection', side_effect=[True, False, True])
+        mock_print.assert_called_with(
+            f"Simulating verifying connection to Jupyter server at http://localhost:{local_port}"
+        )
+        mock_get.assert_called_once_with(f"http://localhost:{local_port}")
+        self.assertFalse(is_connected)
+
+    @patch('jupyter_utils.requests.get')
     @patch('jupyter_utils.print')
-    def test_verify_jupyter_connection_multiple_attempts(self, mock_print, mock_verify):
+    def test_verify_jupyter_connection_multiple_attempts(self, mock_print, mock_get):
         local_port = 8000
+        mock_get.side_effect = [
+            MagicMock(status_code=200),
+            requests.RequestException("Connection failed"),
+            MagicMock(status_code=200),
+        ]
 
         # First attempt: success
         is_connected_1 = verify_jupyter_connection(local_port)
         self.assertTrue(is_connected_1)
-        mock_print.assert_any_call(f"Simulating verifying connection to Jupyter server at http://localhost:{local_port}")
-
+        mock_print.assert_any_call(
+            f"Simulating verifying connection to Jupyter server at http://localhost:{local_port}"
+        )
 
         # Second attempt: failure
         is_connected_2 = verify_jupyter_connection(local_port)
         self.assertFalse(is_connected_2)
-        mock_print.assert_any_call(f"Simulating verifying connection to Jupyter server at http://localhost:{local_port}")
-
+        mock_print.assert_any_call(
+            f"Simulating verifying connection to Jupyter server at http://localhost:{local_port}"
+        )
 
         # Third attempt: success
         is_connected_3 = verify_jupyter_connection(local_port)
         self.assertTrue(is_connected_3)
-        mock_print.assert_any_call(f"Simulating verifying connection to Jupyter server at http://localhost:{local_port}")
+        mock_print.assert_any_call(
+            f"Simulating verifying connection to Jupyter server at http://localhost:{local_port}"
+        )
 
-
-        self.assertEqual(mock_verify.call_count, 3)
-        mock_verify.assert_any_call(local_port)
+        self.assertEqual(mock_get.call_count, 3)
+        mock_get.assert_any_call(f"http://localhost:{local_port}")
 
 
 if __name__ == '__main__':
