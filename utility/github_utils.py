@@ -2,7 +2,7 @@ import requests
 from google.colab import userdata
 
 
-def create_github_repository(repo_name, description, private=False):
+def create_github_repository(repo_name, description, private=False, username=None):
     """
     Creates a new GitHub repository using the GitHub API.
 
@@ -10,6 +10,8 @@ def create_github_repository(repo_name, description, private=False):
         repo_name (str): The name of the repository to create.
         description (str): A brief description of the repository.
         private (bool): Whether the repository should be private (default: False).
+        username (str, optional): GitHub username. If not provided, it will be
+            retrieved from Colab secrets.
 
     Returns:
         tuple: A tuple containing a boolean indicating success, and the URL of the created repository or an error message.
@@ -19,6 +21,11 @@ def create_github_repository(repo_name, description, private=False):
         if github_token is None:
             print("Error: GitHub token not found in Colab secrets.")
             return False, "GitHub token not found"
+        if username is None:
+            username = userdata.get("GitHubusername")
+            if username is None:
+                print("Error: GitHub username not found in Colab secrets.")
+                return False, "GitHub username not found"
     except Exception as e:
         print(f"Error retrieving GitHub token: {e}")
         return False, f"Error retrieving GitHub token: {e}"
@@ -42,8 +49,9 @@ def create_github_repository(repo_name, description, private=False):
             try:
                 # Use the API to get the repo details and extract the URL
                 check_response = requests.get(
-                    f"https://api.github.com/repos/aujl/{repo_name}", headers=headers
-                )  # Assuming username is 'aujl'
+                    f"https://api.github.com/repos/{username}/{repo_name}",
+                    headers=headers,
+                )
                 if check_response.status_code == 200:
                     return True, check_response.json().get("html_url")
                 else:
