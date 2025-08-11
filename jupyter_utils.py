@@ -1,3 +1,6 @@
+import requests
+
+
 def start_remote_jupyter_server(remote_host, remote_port):
   """
   Simulates starting a Jupyter server on the remote machine.
@@ -31,16 +34,19 @@ def create_ssh_tunnel(local_port, remote_port, username, remote_host):
   pass
 
 def verify_jupyter_connection(local_port):
-  """
-  Simulates verifying the connection to the Jupyter server through the local port.
+  """Simulates verifying the connection to the Jupyter server through the
+  local port.
 
   Args:
     local_port: The local port number of the SSH tunnel.
 
-  This function would typically attempt to access a specific URL like:
-  http://localhost:<local_port>
-  and check for a successful response.
+  This function would typically attempt to access a specific URL like
+  ``http://localhost:<local_port>`` and check for a successful response.
   """
-  print(f"Simulating verifying connection to Jupyter server at http://localhost:{local_port}")
-  # In a real scenario, you would attempt to connect to the URL here
-  return True # Simulate a successful connection
+  url = f"http://localhost:{local_port}"
+  print(f"Simulating verifying connection to Jupyter server at {url}")
+  try:
+    response = requests.get(url)
+    return response.status_code == 200
+  except requests.RequestException:
+    return False
