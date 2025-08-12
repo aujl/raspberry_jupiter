@@ -47,6 +47,26 @@ class TestGithubUtils(unittest.TestCase):
             "https://api.github.com/repos/dummyuser/myrepo", headers=ANY
         )
 
+    @patch("utility.github_utils.requests.get")
+    @patch("utility.github_utils.requests.post")
+    def test_existing_repo_uses_secret_username(self, mock_post, mock_get):
+        # Simulate repository already existing
+        mock_post.return_value.status_code = 422
+
+        # Simulate retrieving existing repository URL
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.json.return_value = {
+            "html_url": "https://github.com/fake_user/myrepo"
+        }
+
+        success, url = create_github_repository("myrepo", "desc")
+
+        self.assertTrue(success)
+        self.assertEqual(url, "https://github.com/fake_user/myrepo")
+        mock_get.assert_called_once_with(
+            "https://api.github.com/repos/fake_user/myrepo", headers=ANY
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
