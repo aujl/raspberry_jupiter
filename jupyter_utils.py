@@ -23,7 +23,7 @@ def verify_jupyter_connection(local_port, timeout=5):
 
     The previous implementation always returned ``True`` regardless of whether
     the server was reachable, which made it impossible to detect connection
-    issues.  This function now attempts to make an HTTP request to the Jupyter
+    issues. This function now attempts to make an HTTP request to the Jupyter
     server and returns ``True`` only when the request succeeds.
 
     Args:
